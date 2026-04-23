@@ -26,6 +26,23 @@ function fetchTasks(PDO $pdo, array $user): array
     return $stmt->fetchAll();
 }
 
+function findEditableTask(PDO $pdo, array $user, int $taskId): ?array
+{
+    if ($taskId <= 0) {
+        return null;
+    }
+
+    if (($user['role'] ?? '') === 'admin') {
+        $stmt = $pdo->prepare('SELECT tasks.*, users.full_name, users.class_name FROM tasks INNER JOIN users ON users.id = tasks.user_id WHERE tasks.id = ? LIMIT 1');
+        $stmt->execute([$taskId]);
+        return $stmt->fetch() ?: null;
+    }
+
+    $stmt = $pdo->prepare('SELECT * FROM tasks WHERE id = ? AND user_id = ? LIMIT 1');
+    $stmt->execute([$taskId, (int) $user['id']]);
+    return $stmt->fetch() ?: null;
+}
+
 function fetchRounds(PDO $pdo): array
 {
     $sql = "SELECT rounds.*, winner.full_name AS winner_name, teams.name AS winner_team_name
@@ -277,6 +294,7 @@ $rounds = fetchRounds($pdo);
 $activeRound = fetchActiveRound($pdo);
 $roundStats = fetchRoundStats($pdo);
 $activityLogs = $user && ($user['role'] ?? '') === 'admin' ? fetchActivityLogs($pdo) : [];
+$editingTask = $user ? findEditableTask($pdo, $user, (int) ($_GET['edit_task'] ?? 0)) : null;
 $catalog = getPuzzleCatalog();
 $csrfToken = csrfToken();
 ?>
@@ -457,33 +475,43 @@ $csrfToken = csrfToken();
                 <form method="post" class="stack-form compact-form">
                     <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
                     <input type="hidden" name="action" value="save_task">
+                    <input type="hidden" name="task_id" value="<?= e((string) ($editingTask['id'] ?? 0)) ?>">
                     <?php if (($user['role'] ?? '') === 'admin'): ?>
+                        <?php if ($students): ?>
                         <label>
                             Учень-власник задачі
                             <select name="user_id" required>
                                 <?php foreach ($students as $student): ?>
-                                    <option value="<?= e((string) $student['id']) ?>"><?= e($student['full_name'] . ' (' . $student['class_name'] . ')') ?></option>
+                                    <option value="<?= e((string) $student['id']) ?>" <?= (int) $student['id'] === (int) ($editingTask['user_id'] ?? $student['id']) ? 'selected' : '' ?>><?= e($student['full_name'] . ' (' . $student['class_name'] . ')') ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
+                        <?php else: ?>
+                            <div class="empty-state">Спочатку дочекайтеся реєстрації хоча б одного учня, щоб створювати задачі.</div>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <label>
                         Назва задачі
-                        <input type="text" name="title" placeholder="Наприклад, Повторити материки" required>
+                        <input type="text" name="title" placeholder="Наприклад, Повторити материки" value="<?= e((string) ($editingTask['title'] ?? '')) ?>" required>
                     </label>
                     <label>
                         Опис
-                        <textarea name="details" rows="3" placeholder="Короткий план підготовки або навчальне завдання" required></textarea>
+                        <textarea name="details" rows="3" placeholder="Короткий план підготовки або навчальне завдання" required><?= e((string) ($editingTask['details'] ?? '')) ?></textarea>
                     </label>
                     <label>
                         Статус
                         <select name="status">
-                            <option value="new">Нова</option>
-                            <option value="in_progress">У процесі</option>
-                            <option value="done">Виконано</option>
+                            <option value="new" <?= ($editingTask['status'] ?? 'new') === 'new' ? 'selected' : '' ?>>Нова</option>
+                            <option value="in_progress" <?= ($editingTask['status'] ?? '') === 'in_progress' ? 'selected' : '' ?>>У процесі</option>
+                            <option value="done" <?= ($editingTask['status'] ?? '') === 'done' ? 'selected' : '' ?>>Виконано</option>
                         </select>
                     </label>
-                    <button type="submit">Зберегти задачу</button>
+                    <div class="inline-form">
+                        <button type="submit" <?= ($user['role'] ?? '') === 'admin' && !$students ? 'disabled' : '' ?>><?= $editingTask ? 'Оновити задачу' : 'Зберегти задачу' ?></button>
+                        <?php if ($editingTask): ?>
+                            <a href="/" class="secondary-link">Скасувати редагування</a>
+                        <?php endif; ?>
+                    </div>
                 </form>
 
                 <div class="table-wrap">
@@ -507,12 +535,15 @@ $csrfToken = csrfToken();
                                 <td><?= e($task['status']) ?></td>
                                 <td><?= e($task['details']) ?></td>
                                 <td>
-                                    <form method="post" class="inline-form" onsubmit="return confirm('Видалити задачу?');">
-                                        <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
-                                        <input type="hidden" name="action" value="delete_task">
-                                        <input type="hidden" name="task_id" value="<?= e((string) $task['id']) ?>">
-                                        <button type="submit" class="danger-button">Видалити</button>
-                                    </form>
+                                    <div class="inline-form">
+                                        <a href="/?edit_task=<?= e((string) $task['id']) ?>" class="secondary-link">Редагувати</a>
+                                        <form method="post" class="inline-form" onsubmit="return confirm('Видалити задачу?');">
+                                            <input type="hidden" name="csrf_token" value="<?= e($csrfToken) ?>">
+                                            <input type="hidden" name="action" value="delete_task">
+                                            <input type="hidden" name="task_id" value="<?= e((string) $task['id']) ?>">
+                                            <button type="submit" class="danger-button">Видалити</button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

@@ -42,11 +42,13 @@
   const cols = Number(puzzle.cols || 4);
   const rows = Number(puzzle.rows || 3);
   const totalPieces = cols * rows;
-  const tileSize = 72;
+  const computeTileSize = () => {
+    const maxWidth = Math.min(app.clientWidth || window.innerWidth - 32, 540);
+    return Math.max(52, Math.min(72, Math.floor(maxWidth / cols) - 4));
+  };
+  let tileSize = computeTileSize();
   board.style.setProperty('--cols', String(cols));
   board.style.setProperty('--rows', String(rows));
-  board.style.width = `${cols * tileSize}px`;
-  board.style.height = `${rows * tileSize}px`;
   board.style.backgroundImage = `url(${puzzle.asset})`;
 
   const targetRects = [];
@@ -107,9 +109,43 @@
     return piece;
   });
 
+  const applyPieceDimensions = () => {
+    tileSize = computeTileSize();
+    board.style.width = `${cols * tileSize}px`;
+    board.style.height = `${rows * tileSize}px`;
+
+    Array.from(board.querySelectorAll('.puzzle-slot')).forEach((slot, index) => {
+      const col = index % cols;
+      const row = Math.floor(index / cols);
+      slot.style.left = `${col * tileSize}px`;
+      slot.style.top = `${row * tileSize}px`;
+      slot.style.width = `${tileSize}px`;
+      slot.style.height = `${tileSize}px`;
+    });
+
+    pieces.forEach((piece) => {
+      const col = Number(piece.dataset.col || 0);
+      const row = Number(piece.dataset.row || 0);
+      piece.style.width = `${tileSize}px`;
+      piece.style.height = `${tileSize}px`;
+      piece.style.backgroundSize = `${cols * tileSize}px ${rows * tileSize}px`;
+      piece.style.backgroundPosition = `${-col * tileSize}px ${-row * tileSize}px`;
+    });
+  };
+
   const layoutTray = () => {
+    applyPieceDimensions();
     pieces.forEach((piece, index) => {
       if (piece.dataset.locked === '1') {
+        const col = Number(piece.dataset.col || 0);
+        const row = Number(piece.dataset.row || 0);
+        const boardRect = board.getBoundingClientRect();
+        const trayRect = tray.getBoundingClientRect();
+        const snapX = boardRect.left - trayRect.left + col * tileSize;
+        const snapY = boardRect.top - trayRect.top + row * tileSize;
+        piece.style.transform = `translate(${snapX}px, ${snapY}px)`;
+        piece.dataset.x = String(snapX);
+        piece.dataset.y = String(snapY);
         return;
       }
       const perRow = window.innerWidth < 720 ? 4 : 6;
