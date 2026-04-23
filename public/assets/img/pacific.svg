@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 288">
+  <rect width="432" height="288" rx="28" fill="#061727"/>
+  <path d="M28 146c25-44 67-66 113-66 34 0 61 12 86 26 23 14 49 24 79 24 31 0 58-13 83-25 17-9 34-17 52-19 29-3 54 10 63 34-11 36-45 67-83 73-22 4-44-2-66-8-30-8-61-16-96-10-29 5-56 17-85 24-45 11-96 5-146-29z" fill="#0ea5e9" stroke="#bae6fd" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="123" cy="102" r="10" fill="#fef08a"/>
+  <circle cx="301" cy="94" r="12" fill="#fef08a"/>
+  <circle cx="350" cy="173" r="9" fill="#fef08a"/>
+  <text x="216" y="254" text-anchor="middle" fill="#f8fafc" font-size="24" font-family="Arial">Тихий океан</text>
+</svg>

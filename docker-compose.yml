@@ -1,0 +1,61 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: card_puzzle_nginx
+    depends_on:
+      - php
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+
+  php:
+    build:
+      context: ./docker/php
+    container_name: card_puzzle_php
+    depends_on:
+      - mysql
+    environment:
+      APP_ENV: dev
+      APP_URL: http://localhost:8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: card_puzzle
+      DB_USER: app_user
+      DB_PASSWORD: app_password
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin12345
+    volumes:
+      - ./:/var/www/html
+
+  mysql:
+    image: mysql:8.4
+    container_name: card_puzzle_mysql
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: card_puzzle
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
+    container_name: card_puzzle_phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    ports:
+      - "8081:80"
+
+volumes:
+  mysql_data:

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 288 216">
+  <rect width="288" height="216" rx="28" fill="#07111f"/>
+  <path d="M139 22l23 16 20 35-6 28 15 25-13 21 2 23-16 24-7 18-23-6-13-22-19-6-9-18 9-22-13-19 6-18 18-8 7-18 19-19z" fill="#f59e0b" stroke="#fde68a" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="201" cy="142" r="10" fill="#fde68a"/>
+  <text x="144" y="196" text-anchor="middle" fill="#f8fafc" font-size="24" font-family="Arial">Африка</text>
+</svg>

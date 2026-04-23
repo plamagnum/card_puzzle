@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 288">
+  <rect width="360" height="288" rx="28" fill="#06131f"/>
+  <path d="M184 20c25 18 45 55 43 97-2 42-10 61-22 92-7 18-19 42-39 45-19 2-36-16-49-39-12-22-20-54-17-95 2-43 17-89 47-108 13-8 24-6 37 8z" fill="#38bdf8" stroke="#bae6fd" stroke-width="6"/>
+  <path d="M170 54c18 9 29 31 28 58-1 25-8 39-18 61-8 16-17 26-28 26-9-1-18-12-24-25-8-18-11-40-9-62 2-28 11-52 24-62 11-8 15-8 27 4z" fill="#d0f4ff" opacity="0.45"/>
+  <text x="180" y="262" text-anchor="middle" fill="#f8fafc" font-size="24" font-family="Arial">Озеро Байкал</text>
+</svg>
