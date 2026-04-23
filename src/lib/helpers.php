@@ -156,5 +156,10 @@ function formatDateTime(?string $value): string
         return '—';
     }
 
-    return date('d.m.Y H:i', strtotime($value));
+    $timestamp = strtotime($value);
+    if ($timestamp === false) {
+        return '—';
+    }
+
+    return date('d.m.Y H:i', $timestamp);
 }

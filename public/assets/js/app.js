@@ -300,5 +300,6 @@
   if (locked) {
     lockGame(statusEl ? statusEl.textContent : 'Раунд завершено.');
   }
-  window.setInterval(pollGameState, 4000);
+  const pollIntervalId = window.setInterval(pollGameState, 4000);
+  window.addEventListener('beforeunload', () => window.clearInterval(pollIntervalId), { once: true });
 })();
