@@ -30,9 +30,9 @@ Geo Puzzle School — це навчальний fullstack вебзастосун
 ## Покроковий запуск
 
 1. Встановіть Docker та Docker Compose.
-2. Відкрийте термінал у каталозі репозиторію:
+2. Відкрийте термінал у локальному каталозі, куди ви клонували репозиторій:
    ```bash
-   cd /home/runner/work/card_puzzle/card_puzzle
+   cd /шлях/до/card_puzzle
    ```
 3. Запустіть контейнери:
    ```bash

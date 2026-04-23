@@ -170,7 +170,8 @@ if (isset($_GET['api'])) {
         }
 
         verifyCsrf($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null);
-        $payload = json_decode(file_get_contents('php://input') ?: '[]', true);
+        $rawPayload = file_get_contents('php://input');
+        $payload = json_decode($rawPayload !== false && $rawPayload !== '' ? $rawPayload : '{}', true);
         $roundId = (int) ($payload['roundId'] ?? 0);
         if ($roundId <= 0) {
             jsonResponse(['ok' => false, 'message' => 'Некоректний раунд.'], 422);

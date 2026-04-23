@@ -53,7 +53,14 @@
 
   const targetRects = [];
 
-  const shuffle = (list) => [...list].sort(() => Math.random() - 0.5);
+  const shuffle = (list) => {
+    const next = [...list];
+    for (let index = next.length - 1; index > 0; index -= 1) {
+      const swapIndex = Math.floor(Math.random() * (index + 1));
+      [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
+    }
+    return next;
+  };
 
   const shapeForIndex = (mode, index) => {
     const square = ['inset(0 round 14px)'];

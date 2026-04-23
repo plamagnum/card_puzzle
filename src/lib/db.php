@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+function envRequired(string $name): string
+{
+    $value = getenv($name);
+    if ($value === false || $value === '') {
+        throw new RuntimeException(sprintf('Не задано обов’язкову змінну середовища %s.', $name));
+    }
+
+    return $value;
+}
+
 function db(): PDO
 {
     static $pdo = null;
@@ -10,11 +20,11 @@ function db(): PDO
         return $pdo;
     }
 
-    $host = getenv('DB_HOST') ?: '127.0.0.1';
-    $port = getenv('DB_PORT') ?: '3306';
-    $name = getenv('DB_NAME') ?: 'card_puzzle';
-    $user = getenv('DB_USER') ?: 'app_user';
-    $password = getenv('DB_PASSWORD') ?: 'app_password';
+    $host = envRequired('DB_HOST');
+    $port = envRequired('DB_PORT');
+    $name = envRequired('DB_NAME');
+    $user = envRequired('DB_USER');
+    $password = envRequired('DB_PASSWORD');
 
     $dsn = sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $name);
     $pdo = new PDO($dsn, $user, $password, [
@@ -35,8 +45,8 @@ function seedDefaults(PDO $pdo): void
     }
 
     // Створюємо адміністратора за замовчуванням.
-    $adminUsername = getenv('ADMIN_USERNAME') ?: 'admin';
-    $adminPassword = getenv('ADMIN_PASSWORD') ?: 'admin12345';
+    $adminUsername = envRequired('ADMIN_USERNAME');
+    $adminPassword = envRequired('ADMIN_PASSWORD');
     $adminExists = $pdo->prepare("SELECT id FROM users WHERE role = 'admin' AND username = ? LIMIT 1");
     $adminExists->execute([$adminUsername]);
 
